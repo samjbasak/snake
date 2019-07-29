@@ -34,13 +34,13 @@ class Grid {
 const grid = new Grid(300, 10)
 
 class Snake {
-  constructor(adjuster, currentDirection, directions) {
+  constructor(adjuster, directions) {
       this.position = [[adjuster+(Math.floor(grid.blocks/2)), Math.floor(grid.blocks/2)],
                 [adjuster+Math.floor(grid.blocks/2), Math.floor(grid.blocks/2)+1],
                 [adjuster+Math.floor(grid.blocks/2), Math.floor(grid.blocks/2)+2]]
       this.directionalVelocity = {x:0, y:-1}
       this.color = `rgb(0, 0, 0)`
-      this.currentDirection = currentDirection
+      this.currentDirection = directions[1]
       this.directions = {up: directions[1],
                          left: directions[0],
                          down: directions[3],
@@ -65,8 +65,6 @@ class Snake {
     return true
   }
   drawSnake() {
-    //console.log(grid.blocks)
-    //console.log(this.position)
     for (let i=0; i < this.position.length; i++) {
       ctx.fillStyle = this.color
       ctx.fillRect(this.position[i][0]*grid.boxSize, this.position[i][1]*grid.boxSize, grid.boxSize, grid.boxSize)
@@ -137,26 +135,23 @@ class Food {
 }
 
 
-// clearCanvas()
-// drawSnake(snake.position)
-
 const main = () => {
   let gameSpeed = 100
     setTimeout(function onTick() {
     changingDirection = false
     grid.drawBackground()
     if (snake.checkForCollision(snake2.position) && snake2.checkForCollision(snake.position)) {
-      snake = new Snake(-1, 87, [65, 87, 68, 83])
-      snake2 = new Snake(1, 38, [37, 38, 39, 40])
+      snake = new Snake(-1, [65, 87, 68, 83])
+      snake2 = new Snake(1, [37, 38, 39, 40])
     }
     else if (!snake.checkStillIn() || snake.checkForCollision(snake2.position)) {
       snake2Wins += snake2.position.length
-      snake = new Snake(-1, 87, [65, 87, 68, 83])
-      snake2 = new Snake(1, 38, [37, 38, 39, 40])
+      snake = new Snake(-1, [65, 87, 68, 83])
+      snake2 = new Snake(1, [37, 38, 39, 40])
     } else if (!snake2.checkStillIn() || snake2.checkForCollision(snake.position)) {
       snakeWins += snake.position.length
-      snake = new Snake(-1, 87, [65, 87, 68, 83])
-      snake2 = new Snake(1, 38, [37, 38, 39, 40])
+      snake = new Snake(-1, [65, 87, 68, 83])
+      snake2 = new Snake(1, [37, 38, 39, 40])
     }
     if (snake.foundFood(food.position)) {
       snake.moveSnake(true)
@@ -188,8 +183,8 @@ const changeDirection = (event) => {
 }
 
 document.addEventListener("keydown", changeDirection);
-let snake = new Snake(-1, 87, [65, 87, 68, 83])
-let snake2 = new Snake(1, 38, [37, 38, 39, 40])
+let snake = new Snake(-1, [65, 87, 68, 83])
+let snake2 = new Snake(1, [37, 38, 39, 40])
 let food = new Food
 main()
 
