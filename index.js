@@ -1,8 +1,4 @@
 let c = document.getElementById("canvas");
-let playerOneScore = document.getElementById("player1")
-let playerTwoScore = document.getElementById("player2")
-let snakeWins = 0
-let snake2Wins = 0
 let ctx = c.getContext("2d");
 
 class Grid {
@@ -31,7 +27,15 @@ class Grid {
     }
   }
 }
-const grid = new Grid(300, 10)
+
+class Game {
+  constructor() {
+    this.playerOneScore = document.getElementById("player1")
+    this.playerTwoScore = document.getElementById("player2")
+    this.snakeWins = 0
+    this.snake2Wins = 0
+  }
+}
 
 class Snake {
   constructor(adjuster, directions) {
@@ -145,11 +149,11 @@ const main = () => {
       snake2 = new Snake(1, [37, 38, 39, 40])
     }
     else if (!snake.checkStillIn() || snake.checkForCollision(snake2.position)) {
-      snake2Wins += snake2.position.length
+      game.snake2Wins += snake2.position.length
       snake = new Snake(-1, [65, 87, 68, 83])
       snake2 = new Snake(1, [37, 38, 39, 40])
     } else if (!snake2.checkStillIn() || snake2.checkForCollision(snake.position)) {
-      snakeWins += snake.position.length
+      game.snakeWins += snake.position.length
       snake = new Snake(-1, [65, 87, 68, 83])
       snake2 = new Snake(1, [37, 38, 39, 40])
     }
@@ -168,8 +172,8 @@ const main = () => {
     snake.drawSnake()
     snake2.drawSnake()
     food.drawFood()
-    playerOneScore.innerHTML = `${snakeWins}`
-    playerTwoScore.innerHTML = `${snake2Wins}`
+    game.playerOneScore.innerHTML = `${game.snakeWins}`
+    game.playerTwoScore.innerHTML = `${game.snake2Wins}`
     main()
   }, gameSpeed)
 }
@@ -182,6 +186,8 @@ const changeDirection = (event) => {
   
 }
 
+const grid = new Grid(300, 10)
+const game = new Game()
 document.addEventListener("keydown", changeDirection);
 let snake = new Snake(-1, [65, 87, 68, 83])
 let snake2 = new Snake(1, [37, 38, 39, 40])
