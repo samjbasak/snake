@@ -11,6 +11,7 @@ class Grid {
     this.boxSize = boxSize
     this.blocks =  this.calculateBlocks(),
     this.gridBlocks = this.calculateGridBlocks()
+    this.snakes = []
   }
   calculateBlocks () {
     return this.gridSize / this.boxSize
@@ -18,29 +19,32 @@ class Grid {
   calculateGridBlocks () {
     return this.blocks % 2 == 1 ? this.blocks : this.blocks+1
   }
-}
-const grid = new Grid(300, 10)
-
-const drawBackground = () => {
-  let colors = [[30, 270, 9], [36, 230, 11]]
-  let color = 0
-  for (let x = 0; x < grid.gridBlocks; x++) {
-    for (let y = 0; y < grid.gridBlocks; y++) {
-      ctx.fillStyle = `rgb(${colors[color][0]}, ${colors[color][1]}, ${colors[color][2]})`
-      ctx.fillRect(x*grid.boxSize, y*grid.boxSize, grid.boxSize, grid.boxSize)
-      color = (color + 1) % 2
+  drawBackground () {
+    let colors = [[30, 270, 9], [36, 230, 11]]
+    let color = 0
+    for (let x = 0; x < grid.gridBlocks; x++) {
+      for (let y = 0; y < grid.gridBlocks; y++) {
+        ctx.fillStyle = `rgb(${colors[color][0]}, ${colors[color][1]}, ${colors[color][2]})`
+        ctx.fillRect(x*grid.boxSize, y*grid.boxSize, grid.boxSize, grid.boxSize)
+        color = (color + 1) % 2
+      }
     }
   }
 }
+const grid = new Grid(300, 10)
 
 class Snake {
-  constructor(adjuster, currentDirection) {
+  constructor(adjuster, currentDirection, directions) {
       this.position = [[adjuster+(Math.floor(grid.blocks/2)), Math.floor(grid.blocks/2)],
                 [adjuster+Math.floor(grid.blocks/2), Math.floor(grid.blocks/2)+1],
                 [adjuster+Math.floor(grid.blocks/2), Math.floor(grid.blocks/2)+2]]
       this.directionalVelocity = {x:0, y:-1}
       this.color = `rgb(0, 0, 0)`
       this.currentDirection = currentDirection
+      this.directions = {up: directions[1],
+                         left: directions[0],
+                         down: directions[3],
+                         right: directions[2],}
   }
   moveSnake(addToSnake) {
     let newPosition = [(this.position[0][0]+this.directionalVelocity.x + grid.blocks) % grid.blocks,
@@ -82,12 +86,34 @@ class Snake {
     }
     return false
   }
-}
+  changeInDirection(keyPressed) {
+    // Snake Left key press
+    if (keyPressed === this.directions.left && this.currentDirection != this.directions.right) {
+      this.currentDirection = this.directions.left
+      this.directionalVelocity.x = -1;
+      this.directionalVelocity.y = 0;
+    }
+    // Snake Up key press
+    if (keyPressed === this.directions.up && this.currentDirection != this.directions.down) {
+      this.currentDirection = this.directions.up
+      this.directionalVelocity.x = 0;
+      this.directionalVelocity.y = -1;
+    }
+    // Snake Right key press
+    if (keyPressed === this.directions.right && this.currentDirection != this.directions.left) {
+      this.currentDirection = this.directions.right
+      this.directionalVelocity.x = 1;
+      this.directionalVelocity.y = 0;
+    }
+    // Snake Down key press
+    if (keyPressed === this.directions.down && this.currentDirection != this.directions.up) {
+      this.currentDirection = this.directions.down
+      this.directionalVelocity.x = 0;
+      this.directionalVelocity.y = 1;
+    }
+  }
 
-const clearCanvas = () => {
-  drawBackground()
 }
-
 
 class Food {
   constructor () {
@@ -118,19 +144,19 @@ const main = () => {
   let gameSpeed = 100
     setTimeout(function onTick() {
     changingDirection = false
-    clearCanvas()
+    grid.drawBackground()
     if (snake.checkForCollision(snake2.position) && snake2.checkForCollision(snake.position)) {
-      snake = new Snake(-1, 87)
-      snake2 = new Snake(1, 38)
+      snake = new Snake(-1, 87, [65, 87, 68, 83])
+      snake2 = new Snake(1, 38, [37, 38, 39, 40])
     }
     else if (!snake.checkStillIn() || snake.checkForCollision(snake2.position)) {
       snake2Wins += snake2.position.length
-      snake = new Snake(-1, 87)
-      snake2 = new Snake(1, 38)
+      snake = new Snake(-1, 87, [65, 87, 68, 83])
+      snake2 = new Snake(1, 38, [37, 38, 39, 40])
     } else if (!snake2.checkStillIn() || snake2.checkForCollision(snake.position)) {
       snakeWins += snake.position.length
-      snake = new Snake(-1, 87)
-      snake2 = new Snake(1, 38)
+      snake = new Snake(-1, 87, [65, 87, 68, 83])
+      snake2 = new Snake(1, 38, [37, 38, 39, 40])
     }
     if (snake.foundFood(food.position)) {
       snake.moveSnake(true)
@@ -156,61 +182,14 @@ const main = () => {
 const changeDirection = (event) => {
 
   const keyPressed = event.keyCode;
-
-  // Snake 2 Left key press
-  if (keyPressed === 37 && snake2.currentDirection != 39) {
-    snake2.currentDirection = 37
-    snake2.directionalVelocity.x = -1;
-    snake2.directionalVelocity.y = 0;
-  }
-  // Snake 2 Up key press
-  if (keyPressed === 38 && snake2.currentDirection != 40) {
-    snake2.currentDirection = 38
-    snake2.directionalVelocity.x = 0;
-    snake2.directionalVelocity.y = -1;
-  }
-  // Snake 2 Right key press
-  if (keyPressed === 39 && snake2.currentDirection != 37) {
-    snake2.currentDirection = 39
-    snake2.directionalVelocity.x = 1;
-    snake2.directionalVelocity.y = 0;
-  }
-  // Snake 2 Down key press
-  if (keyPressed === 40 && snake2.currentDirection != 38) {
-    snake2.currentDirection = 40
-    snake2.directionalVelocity.x = 0;
-    snake2.directionalVelocity.y = 1;
-  }
-
-  // Snake 1 Left key press
-  if (keyPressed === 65 && snake.currentDirection != 68) {
-    snake.currentDirection = 65
-    snake.directionalVelocity.x = -1;
-    snake.directionalVelocity.y = 0;
-  }
-  // Snake 1 Up key press
-  if (keyPressed === 87 && snake.currentDirection != 83) {
-    snake.currentDirection = 87
-    snake.directionalVelocity.x = 0;
-    snake.directionalVelocity.y = -1;
-  }
-  // Snake 1 Right key press
-  if (keyPressed === 68 && snake.currentDirection != 65) {
-    snake.currentDirection = 68
-    snake.directionalVelocity.x = 1;
-    snake.directionalVelocity.y = 0;
-  }
-  // Snake 1 Down key press
-  if (keyPressed === 83 && snake.currentDirection != 87) {
-    snake.currentDirection = 83
-    snake.directionalVelocity.x = 0;
-    snake.directionalVelocity.y = 1;
-  }
+  snake.changeInDirection(keyPressed)
+  snake2.changeInDirection(keyPressed)
+  
 }
 
 document.addEventListener("keydown", changeDirection);
-let snake = new Snake(-1, 87)
-let snake2 = new Snake(1, 38)
+let snake = new Snake(-1, 87, [65, 87, 68, 83])
+let snake2 = new Snake(1, 38, [37, 38, 39, 40])
 let food = new Food
 main()
 
