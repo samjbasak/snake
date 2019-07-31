@@ -36,7 +36,21 @@ class Game {
     this.snakes = [new Snake(-1, [65, 87, 68, 83]),
                    new Snake(1, [37, 38, 39, 40])]
   }
-  
+  checkForLoser() {
+    if (this.snakes[0].checkForCollision(this.snakes[1].position) && this.snakes[1].checkForCollision(this.snakes[0].position)) {
+      this.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      this.snakes[1] = new Snake(1, [37, 38, 39, 40])
+    }
+    else if (!this.snakes[0].checkStillIn() || this.snakes[0].checkForCollision(this.snakes[1].position)) {
+      this.snake2Wins += this.snakes[1].position.length
+      this.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      this.snakes[1] = new Snake(1, [37, 38, 39, 40])
+    } else if (!this.snakes[1].checkStillIn() || this.snakes[1].checkForCollision(this.snakes[0].position)) {
+      this.snakeWins += this.snakes[0].position.length
+      this.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      this.snakes[1] = new Snake(1, [37, 38, 39, 40])
+    }
+  }
 }
 
 class Snake {
@@ -146,19 +160,7 @@ const main = () => {
     setTimeout(function onTick() {
     changingDirection = false
     grid.drawBackground()
-    if (game.snakes[0].checkForCollision(game.snakes[1].position) && game.snakes[1].checkForCollision(game.snakes[0].position)) {
-      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
-      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
-    }
-    else if (!game.snakes[0].checkStillIn() || game.snakes[0].checkForCollision(game.snakes[1].position)) {
-      game.snake2Wins += game.snakes[1].position.length
-      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
-      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
-    } else if (!game.snakes[1].checkStillIn() || game.snakes[1].checkForCollision(game.snakes[0].position)) {
-      game.snakeWins += game.snakes[0].position.length
-      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
-      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
-    }
+    game.checkForLoser()
     if (game.snakes[0].foundFood(food.position)) {
       game.snakes[0].moveSnake(true)
       game.snakes[0].color = food.color
