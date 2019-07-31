@@ -7,7 +7,6 @@ class Grid {
     this.boxSize = boxSize
     this.blocks =  this.calculateBlocks(),
     this.gridBlocks = this.calculateGridBlocks()
-    this.snakes = []
   }
   calculateBlocks () {
     return this.gridSize / this.boxSize
@@ -34,7 +33,10 @@ class Game {
     this.playerTwoScore = document.getElementById("player2")
     this.snakeWins = 0
     this.snake2Wins = 0
+    this.snakes = [new Snake(-1, [65, 87, 68, 83]),
+                   new Snake(1, [37, 38, 39, 40])]
   }
+  
 }
 
 class Snake {
@@ -114,7 +116,6 @@ class Snake {
       this.directionalVelocity.y = 1;
     }
   }
-
 }
 
 class Food {
@@ -125,8 +126,9 @@ class Food {
   findPlace() {
     let newPosition = [Math.floor(Math.random() * grid.blocks),
                        Math.floor(Math.random() * grid.blocks)]
-    for (let i=0; i<snake.position.length; i++) {
-      if (snake.position[i][0] == newPosition[0] && snake.position[i][1] == newPosition[1]){
+    for (let s=0; s<game.snakes; s++)
+      for (let i=0; i<game.snakes[s].position.length; i++) {
+      if (game.snakes[s].position[i][0] == newPosition[0] && game.snakes[s].position[i][1] == newPosition[1]){
         this.findPlace()
       }
     }
@@ -144,33 +146,33 @@ const main = () => {
     setTimeout(function onTick() {
     changingDirection = false
     grid.drawBackground()
-    if (snake.checkForCollision(snake2.position) && snake2.checkForCollision(snake.position)) {
-      snake = new Snake(-1, [65, 87, 68, 83])
-      snake2 = new Snake(1, [37, 38, 39, 40])
+    if (game.snakes[0].checkForCollision(game.snakes[1].position) && game.snakes[1].checkForCollision(game.snakes[0].position)) {
+      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
     }
-    else if (!snake.checkStillIn() || snake.checkForCollision(snake2.position)) {
-      game.snake2Wins += snake2.position.length
-      snake = new Snake(-1, [65, 87, 68, 83])
-      snake2 = new Snake(1, [37, 38, 39, 40])
-    } else if (!snake2.checkStillIn() || snake2.checkForCollision(snake.position)) {
-      game.snakeWins += snake.position.length
-      snake = new Snake(-1, [65, 87, 68, 83])
-      snake2 = new Snake(1, [37, 38, 39, 40])
+    else if (!game.snakes[0].checkStillIn() || game.snakes[0].checkForCollision(game.snakes[1].position)) {
+      game.snake2Wins += game.snakes[1].position.length
+      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
+    } else if (!game.snakes[1].checkStillIn() || game.snakes[1].checkForCollision(game.snakes[0].position)) {
+      game.snakeWins += game.snakes[0].position.length
+      game.snakes[0] = new Snake(-1, [65, 87, 68, 83])
+      game.snakes[1] = new Snake(1, [37, 38, 39, 40])
     }
-    if (snake.foundFood(food.position)) {
-      snake.moveSnake(true)
-      snake.color = food.color
+    if (game.snakes[0].foundFood(food.position)) {
+      game.snakes[0].moveSnake(true)
+      game.snakes[0].color = food.color
       food = new Food
-    } else if (snake2.foundFood(food.position)) {
-      snake2.moveSnake(true)
-      snake2.color = food.color
+    } else if (game.snakes[1].foundFood(food.position)) {
+      game.snakes[1].moveSnake(true)
+      game.snakes[1].color = food.color
       food = new Food
     } else {
-      snake.moveSnake(false)
-      snake2.moveSnake(false)
+      game.snakes[0].moveSnake(false)
+      game.snakes[1].moveSnake(false)
     }
-    snake.drawSnake()
-    snake2.drawSnake()
+    game.snakes[0].drawSnake()
+    game.snakes[1].drawSnake()
     food.drawFood()
     game.playerOneScore.innerHTML = `${game.snakeWins}`
     game.playerTwoScore.innerHTML = `${game.snake2Wins}`
@@ -181,16 +183,14 @@ const main = () => {
 const changeDirection = (event) => {
 
   const keyPressed = event.keyCode;
-  snake.changeInDirection(keyPressed)
-  snake2.changeInDirection(keyPressed)
+  game.snakes[0].changeInDirection(keyPressed)
+  game.snakes[1].changeInDirection(keyPressed)
   
 }
 
 const grid = new Grid(300, 10)
 const game = new Game()
 document.addEventListener("keydown", changeDirection);
-let snake = new Snake(-1, [65, 87, 68, 83])
-let snake2 = new Snake(1, [37, 38, 39, 40])
 let food = new Food
 main()
 
