@@ -164,11 +164,11 @@ const main = () => {
     if (game.snakes[0].foundFood(food.position)) {
       game.snakes[0].moveSnake(true)
       game.snakes[0].color = food.color
-      food = new Food
+      food = new Food()
     } else if (game.snakes[1].foundFood(food.position)) {
       game.snakes[1].moveSnake(true)
       game.snakes[1].color = food.color
-      food = new Food
+      food = new Food()
     } else {
       game.snakes[0].moveSnake(false)
       game.snakes[1].moveSnake(false)
@@ -193,7 +193,7 @@ const changeDirection = (event) => {
 const grid = new Grid(300, 10)
 const game = new Game()
 document.addEventListener("keydown", changeDirection);
-let food = new Food
+let food = new Food()
 main()
 
 // x by box size in draw snake, get rid of all other references
